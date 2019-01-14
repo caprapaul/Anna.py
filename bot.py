@@ -6,7 +6,7 @@ import helpers
 #import random
 
 # Global
-TOKEN = 'NTI2MDgxMTI5ODgzODkzODAw.Dv__IQ.Rb-777SzlAKO4ultW8scd6n-JrY'
+TOKEN = ' '
 client = commands.Bot(command_prefix = 'Anna, ')
 client.remove_command('help')
 
