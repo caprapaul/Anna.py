@@ -4,6 +4,7 @@ import sys
 import traceback
 
 # Global
+
 DESCRIPTION = "Hi! My name is Anna. I am a bot under development by Acey#4962. You can access my commands by typing in \"Anna, \" followed by your command. See you around!"
 TOKEN = "NDE4ODYzMTMyNzQ4OTM5Mjg0.D1ABgw.ox70mtL0m7BFL9cP2kUgRELG3BM"
 
