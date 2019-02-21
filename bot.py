@@ -1,101 +1,67 @@
 import discord
-import asyncio
 from discord.ext import commands
-import helpers
-
-#import random
 
 # Global
-TOKEN = 'NTI2MDgxMTI5ODgzODkzODAw.Dv__IQ.Rb-777SzlAKO4ultW8scd6n-JrY'
-client = commands.Bot(command_prefix = 'Anna, ')
-client.remove_command('help')
+DESCRIPTION = "Hi! My name is Anna. I am a bot under development by Acey#4962. You can access my commands by typing in \"Anna, \" followed by your command. See you around!"
+TOKEN = "NDE4ODYzMTMyNzQ4OTM5Mjg0.D1ABgw.ox70mtL0m7BFL9cP2kUgRELG3BM"
+
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("Anna,"), description=DESCRIPTION)
+
+# this specifies what extensions to load when the bot starts up
+startup_extensions = ["cogs.misc",
+                      "cogs.moderation"]
 
 # <------ Events ------>
-@client.event
+@bot.event
 async def on_ready ():
-    print ("Bot is ready.")
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
 
-@client.event 
+
+@bot.event
 async def on_message(message):
     output = f'{message.author} says: {message.content}'
-    print (output)
-    await client.process_commands(message)
+    print(output)
+    await bot.process_commands(message)
 
 # <------ Commands ------>
-@client.command()
-async def ping():
-    await client.say('Pong!')
-
-
-@client.command()
-async def say(*args):
-    output = ''
-
-    for word in args:
-        output += word
-        output += ' '
-    
-    await client.say(output)
-
-
-@client.command()
-async def hug(*args):
-    output = f'*Hugs {args[0]} warmly*'
-    await client.say(output)
-
-
-@client.command(pass_context = True) # Passes in context of the command
-async def delete(ctx, amount = 100):
-
-        messages = []
-        channel = ctx.message.channel
-
-        async for message in client.logs_from(channel, limit = int(amount)):
-            messages.append(message)
-
-        await client.delete_messages(messages)
-        await client.say('Done.')
-
-@client.command(pass_context = True)
-async def remind(ctx, *args): # Format: Anna, remind me in -timer- -extension- to -message-
-    
-    message = ''
-    for word in args[5:] :
-        message += word
-        message += ' '
-
-    extension = args[3]
-    print(extension)
-    
-    try:
-        unscaledTime = int(args[2])
-    except:
-        await client.say("Sorry, I didn't understand when you wanted to be reminded.")
-        return
-    
-    scaledTime = helpers.getScaledTime(extension, unscaledTime)
-    
-    if scaledTime > 604800:
-        output = "Sorry, I can't set a reminder longer than 1 week."
-    else:
-        await client.say(f'Noted!')
-        await asyncio.sleep(scaledTime)
-        output = f'Hey, {ctx.message.author.mention}, you asked me to remind you to {message}'
-    
-    await client.say(output)
-
-@client.command()
-async def thanks():
-    await client.say('No problem, glad I could help! 👍')
-
-@client.command()
-async def help():
-    await client.say('Hi! My name is Anna. I am a bot under development by Acey#4962. You can access my commands by typing in "Anna, " followed by your command. See you around!')
-
-@client.command()
+@bot.command()
+@commands.is_owner()
 async def disconnect():
+    """Disconnect"""
     print('Exit command received. Ending process.')
-    client.logout()
+    await bot.logout()
     exit()
 
-client.run(TOKEN)
+
+@bot.command()
+@commands.is_owner()
+async def load(ctx, extension_name : str):
+    """Loads an extension."""
+    try:
+        bot.load_extension(extension_name)
+    except (AttributeError, ImportError) as e:
+        await ctx.send("```py\n{}: {}\n```".format(type(e).__name__, str(e)))
+        return
+    await ctx.send("{} loaded.".format(extension_name))
+
+
+@bot.command()
+@commands.is_owner()
+async def unload(ctx, extension_name : str):
+    """Unloads an extension."""
+    bot.unload_extension(extension_name)
+    await ctx.send("{} unloaded.".format(extension_name))
+
+
+if __name__ == "__main__":
+    for extension in startup_extensions:
+        try:
+            bot.load_extension(extension)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            print('Failed to load extension {}\n{}'.format(extension, exc))
+
+    bot.run(TOKEN)
